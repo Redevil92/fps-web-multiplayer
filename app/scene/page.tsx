@@ -1,13 +1,10 @@
 "use client";
-import { Canvas } from "@react-three/fiber";
-import Cube from "./cube";
+import FpsScene from "./scene";
 
 export default function Scene() {
   return (
-    <Canvas>
-      <ambientLight />
-      <pointLight position={[0, 0, 0]} />
-      <Cube></Cube>
-    </Canvas>
+    <div style={{ position: "relative" }}>
+      <FpsScene />
+    </div>
   );
 }

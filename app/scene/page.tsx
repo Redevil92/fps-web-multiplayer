@@ -1,9 +1,46 @@
 "use client";
 import FpsScene from "./scene";
+import { socket } from "../../socket";
+import { useEffect, useState } from "react";
 
 export default function Scene() {
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [transport, setTransport] = useState<string>("N/A");
+
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
+    }
+
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket.io.engine.transport.name);
+
+      socket.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
+
   return (
     <div style={{ position: "relative" }}>
+      <div>
+        <p>Status: {isConnected ? "connected" : "disconnected"}</p>
+        <p>Transport: {transport}</p>
+      </div>
       <FpsScene />
     </div>
   );

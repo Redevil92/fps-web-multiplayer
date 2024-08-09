@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -14,10 +15,34 @@ app.prepare().then(() => {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: ["http://localhost:3000", "https://admin.socket.io"],
       methods: ["GET", "POST"],
     },
   });
+
+  instrument(io, {
+    auth: false,
+    mode: "development",
+  });
+
+  const userIo = io.of("/user");
+  userIo.on("connection", (socket) => {
+    console.log(`User connected with username -> ${socket.username}`);
+  });
+
+  userIo.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (token) {
+      socket.username = getUsernameFromToken(token);
+      next();
+    } else {
+      next(new Error("unauthorized, token not provided"));
+    }
+  });
+
+  function getUsernameFromToken(token) {
+    return `Username ${token}`;
+  }
 
   io.on("connection", (socket) => {
     console.log("a user connected");

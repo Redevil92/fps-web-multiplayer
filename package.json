@@ -13,6 +13,7 @@
     "@react-three/drei": "^9.109.2",
     "@react-three/fiber": "^8.16.8",
     "@react-three/rapier": "^1.4.0",
+    "@socket.io/admin-ui": "^0.5.1",
     "ecctrl": "^1.0.88",
     "next": "14.2.5",
     "react": "^18",

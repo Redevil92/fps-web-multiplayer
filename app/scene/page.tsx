@@ -1,6 +1,6 @@
 "use client";
 import FpsScene from "./scene";
-import { socket } from "../../socket";
+import { socket, userSocket } from "../../socket";
 import { useEffect, useState } from "react";
 
 export default function Scene() {
@@ -37,6 +37,8 @@ export default function Scene() {
     socket.on("disconnect", onDisconnect);
 
     socket.on("message", displayMessage);
+
+    userSocket.on("connect_error", displayMessage);
 
     return () => {
       socket.off("connect", onConnect);

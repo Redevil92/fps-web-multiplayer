@@ -12,10 +12,31 @@ const handler = app.getRequestHandler();
 app.prepare().then(() => {
   const httpServer = createServer(handler);
 
-  const io = new Server(httpServer);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+    },
+  });
 
   io.on("connection", (socket) => {
-    // ...
+    console.log("a user connected");
+
+    socket.on("message", (data, room) => {
+      if (!room) {
+        // socket.emit("message", data); // this will send the message to all the users including the sender
+        socket.broadcast.emit("message", data);
+      } else {
+        console.log("room", room);
+        socket.to(room).emit("message", data);
+      }
+    });
+
+    // users can join as many rooms as they want
+    socket.on("join", (room, cb) => {
+      socket.join(room);
+      cb(`Joined ${room}`);
+    });
   });
 
   httpServer

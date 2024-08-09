@@ -10,6 +10,8 @@ import {
 import Controller from "ecctrl";
 import Player from "./player";
 
+import { socket } from "@/socket";
+
 export default function FpsScene() {
   const keyboardMap = [
     { name: "forward", keys: ["ArrowUp", "KeyW"] },
@@ -27,7 +29,12 @@ export default function FpsScene() {
 
   return (
     <Canvas
-      style={{ position: "absolute", width: "100vw", height: "100vh" }}
+      style={{
+        position: "absolute",
+        right: "0px",
+        width: "70vw",
+        height: "100vh",
+      }}
       shadows
       onPointerDown={(e) => (e.target as any).requestPointerLock()}
     >

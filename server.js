@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import socketController from "./socketController.js";
 import next from "next";
 import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
@@ -44,25 +45,7 @@ app.prepare().then(() => {
     return `Username ${token}`;
   }
 
-  io.on("connection", (socket) => {
-    console.log("a user connected");
-
-    socket.on("message", (data, room) => {
-      if (!room) {
-        // socket.emit("message", data); // this will send the message to all the users including the sender
-        socket.broadcast.emit("message", data);
-      } else {
-        console.log("room", room);
-        socket.to(room).emit("message", data);
-      }
-    });
-
-    // users can join as many rooms as they want
-    socket.on("join", (room, cb) => {
-      socket.join(room);
-      cb(`Joined ${room}`);
-    });
-  });
+  socketController(io);
 
   httpServer
     .once("error", (err) => {

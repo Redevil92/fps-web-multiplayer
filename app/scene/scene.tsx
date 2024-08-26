@@ -9,18 +9,23 @@ import {
 } from "@react-three/drei";
 import Controller from "ecctrl";
 import Player from "./player";
+import CurrentPlayer from "./currentPlayer";
 
 import { socket } from "@/socket";
+import { useEffect } from "react";
 
 export default function FpsScene() {
-  const keyboardMap = [
-    { name: "forward", keys: ["ArrowUp", "KeyW"] },
-    { name: "backward", keys: ["ArrowDown", "KeyS"] },
-    { name: "leftward", keys: ["ArrowLeft", "KeyA"] },
-    { name: "rightward", keys: ["ArrowRight", "KeyD"] },
-    { name: "jump", keys: ["Space"] },
-    { name: "run", keys: ["Shift"] },
-  ];
+  useEffect(() => {
+    socket.on("message", displayMessage);
+
+    return () => {
+      socket.off("message", displayMessage);
+    };
+  }, []);
+
+  function displayMessage(message: { message: string }) {
+    console.log("MESSAGES", message);
+  }
 
   const players: { position: Vector3 }[] = [
     { position: [1, -0.55, 0] },
@@ -53,17 +58,7 @@ export default function FpsScene() {
         </directionalLight>
         <ambientLight intensity={0.2} />
         <Physics timeStep="vary">
-          <KeyboardControls map={keyboardMap}>
-            <Controller maxVelLimit={5}>
-              <Gltf
-                castShadow
-                receiveShadow
-                scale={0.315}
-                position={[0, -0.55, 0]}
-                src="/ghost_w_tophat-transformed.glb"
-              />
-            </Controller>
-          </KeyboardControls>
+          <CurrentPlayer />
           {players.map((player, index) => (
             <Player key={index} position={player.position} />
           ))}

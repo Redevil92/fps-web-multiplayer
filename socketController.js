@@ -17,5 +17,10 @@ export default function socketController(io) {
       socket.join(room);
       cb(`Joined ${room}`);
     });
+
+    // movement
+    socket.on("move", (data) => {
+      socket.broadcast.emit("movement", data);
+    });
   });
 }

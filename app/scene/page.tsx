@@ -35,7 +35,6 @@ export default function Scene() {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-
     socket.on("message", displayMessage);
 
     userSocket.on("connect_error", displayMessage);
@@ -109,7 +108,7 @@ export default function Scene() {
         </div>
       </div>
 
-      {/* <FpsScene /> */}
+      <FpsScene />
     </div>
   );
 }

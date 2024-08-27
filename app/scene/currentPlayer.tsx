@@ -14,8 +14,12 @@ export default function Player() {
     { name: "run", keys: ["Shift"] },
   ];
 
+  function keyboardControlsHandler(name: string, pressed: boolean) {
+    console.log(name, pressed);
+  }
+
   return (
-    <KeyboardControls map={keyboardMap}>
+    <KeyboardControls onChange={keyboardControlsHandler} map={keyboardMap}>
       <Controller maxVelLimit={5}>
         <Gltf
           castShadow

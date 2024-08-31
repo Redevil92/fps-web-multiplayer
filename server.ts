@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import socketController from "./socketController.js";
+import socketController from "./socketController";
 import next from "next";
 import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";

@@ -1,36 +1,38 @@
 "use client";
 import { Canvas, Vector3 } from "@react-three/fiber";
 import { Physics, RigidBody } from "@react-three/rapier";
-import {
-  Gltf,
-  Environment,
-  Fisheye,
-  KeyboardControls,
-} from "@react-three/drei";
-import Controller from "ecctrl";
+import { Gltf, Environment, Fisheye } from "@react-three/drei";
+
 import Player from "./player";
 import CurrentPlayer from "./currentPlayer";
 
 import { socket } from "@/socket";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+interface PlayerData {
+  position: Vector3;
+}
 
 export default function FpsScene() {
+  const [players, setPlayers] = useState<PlayerData[]>([]);
+
   useEffect(() => {
     socket.on("message", displayMessage);
+    socket.on("join", onJoinRoom);
 
     return () => {
       socket.off("message", displayMessage);
+      socket.off("join", onJoinRoom);
     };
   }, []);
+
+  function onJoinRoom(joinedPlayerId: string) {
+    console.log("PLAYERS", joinedPlayerId);
+  }
 
   function displayMessage(message: { message: string }) {
     console.log("MESSAGES", message);
   }
-
-  const players: { position: Vector3 }[] = [
-    { position: [1, -0.55, 0] },
-    { position: [2, -0.55, 0] },
-  ];
 
   return (
     <Canvas

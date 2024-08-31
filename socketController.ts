@@ -1,4 +1,6 @@
-export default function socketController(io) {
+import { Server } from "socket.io";
+
+export default function socketController(io: Server) {
   io.on("connection", (socket) => {
     console.log("a user connected");
 
@@ -13,9 +15,16 @@ export default function socketController(io) {
     });
 
     // users can join as many rooms as they want
-    socket.on("join", (room, cb) => {
+    socket.on("join", async (room, cb) => {
       socket.join(room);
-      cb(`Joined ${room}`);
+      const players = await socket.in(room).fetchSockets();
+      console.log(
+        "players",
+        players.map((player) => player.id)
+      );
+      console.log(socket.id);
+      socket.to(room).emit("join", socket.id);
+      cb(JSON.stringify(players.map((player) => player.id)));
     });
 
     // movement

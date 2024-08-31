@@ -2,6 +2,7 @@
 import FpsScene from "./scene";
 import { socket, userSocket } from "../../socket";
 import { useEffect, useState } from "react";
+import { Vector3 } from "three";
 
 export default function Scene() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -18,7 +19,7 @@ export default function Scene() {
       onConnect();
     }
 
-    function onConnect() {
+    async function onConnect() {
       setIsConnected(true);
       setTransport(socket.io.engine.transport.name);
       setUserId(socket.id || "");
@@ -38,6 +39,8 @@ export default function Scene() {
     socket.on("message", displayMessage);
 
     userSocket.on("connect_error", displayMessage);
+
+    console.log(socket);
 
     return () => {
       socket.off("connect", onConnect);
@@ -60,8 +63,8 @@ export default function Scene() {
   function handleJoinRoom(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    socket.emit("join", room, (message: string) => {
-      displayMessage({ message: message });
+    socket.emit("join", room, (data: any) => {
+      console.log(data);
     });
   }
 

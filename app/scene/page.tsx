@@ -13,6 +13,9 @@ export default function Scene() {
 
   const [input, setInput] = useState("");
   const [room, setRoom] = useState("");
+  const [joinedRoom, setJoinedRoom] = useState("");
+
+  const [availableRooms, setAvailableRooms] = useState<string[]>([]);
 
   useEffect(() => {
     if (socket.connected) {
@@ -62,7 +65,7 @@ export default function Scene() {
 
   function getRooms() {
     socket.emit(SocketEvents.GET_ROOMS, room, (rooms: string[]) => {
-      console.log("ROOMS--->", rooms);
+      setAvailableRooms(rooms);
     });
   }
 
@@ -76,47 +79,74 @@ export default function Scene() {
     getRooms();
   }
 
+  const roomElements = availableRooms.map((room) => (
+    <div key={room} className="border-2 border-red-300 m-1">
+      {room}
+      <button
+        className="bg-slate-400 ml-2 "
+        onClick={() => setJoinedRoom(room)}
+      >
+        JOIN
+      </button>
+    </div>
+  ));
   return (
     <div style={{ display: "flex" }}>
       <div>
-        <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-        <p>Transport: {transport}</p>
+        {/* <p>Status: {isConnected ? "connected" : "disconnected"}</p>
+        <p>Transport: {transport}</p> */}
         <p>
           User id: <strong>{userId}</strong>
         </p>
-
-        <div style={{ marginTop: "20px" }}>
-          <div>
-            Text input:{" "}
-            <input
-              style={{ border: "1px solid black" }}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              type="text"
-              name="myInput"
-            />
-            <button onClick={handleSubmit}>SEND</button>
-          </div>
-          <div style={{ marginTop: "10px" }}>
-            Room:{" "}
-            <input
-              style={{ border: "1px solid black" }}
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-              type="text"
-              name="myInput"
-            />
-            <button onClick={handleJoinRoom}>JOIN</button>
-          </div>
-        </div>
-        <h3 style={{ marginTop: "20px" }}>SOCKET MESSAGES:</h3>
-        <div>
-          <ul>
-            {messages.map((message, index) => (
-              <li key={index}>{message}</li>
-            ))}
-          </ul>
-        </div>
+        {joinedRoom ? (
+          <>
+            <button
+              onClick={() => setJoinedRoom("")}
+              className="bg-slate-400 ml-2 "
+            >
+              back to room list
+            </button>
+            <div>YOUR ROOM: {joinedRoom}</div>
+          </>
+        ) : (
+          <>
+            <div className="border-2 border-spacing-1">
+              ROOM AVAILABLE: <div>{roomElements}</div>
+            </div>
+            <div style={{ marginTop: "20px" }}>
+              <div>
+                Text input:{" "}
+                <input
+                  style={{ border: "1px solid black" }}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  type="text"
+                  name="myInput"
+                />
+                <button onClick={handleSubmit}>SEND</button>
+              </div>
+              <div style={{ marginTop: "10px" }}>
+                Room:{" "}
+                <input
+                  style={{ border: "1px solid black" }}
+                  value={room}
+                  onChange={(e) => setRoom(e.target.value)}
+                  type="text"
+                  name="myInput"
+                />
+                <button onClick={handleJoinRoom}>CREATE</button>
+              </div>
+            </div>
+            <h3 style={{ marginTop: "20px" }}>SOCKET MESSAGES:</h3>
+            <div>
+              <ul>
+                {messages.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            </div>{" "}
+          </>
+        )}
       </div>
 
       <FpsScene />

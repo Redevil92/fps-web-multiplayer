@@ -13,7 +13,6 @@ export default function socketController(io: Server) {
         // socket.emit("message", data); // this will send the message to all the users including the sender
         socket.broadcast.emit("message", data);
       } else {
-        console.log("room", room);
         socket.to(room).emit("message", data);
       }
     });
@@ -31,7 +30,6 @@ export default function socketController(io: Server) {
     socket.on(SocketEvents.GET_ROOMS, async (room, cb) => {
       const rooms = io.of("/").adapter.rooms;
       // filter rooms eleminiating the one that has the same name as the user
-      console.log(rooms, Object.entries(rooms));
       const filteredRooms: string[] = Array.from(rooms.entries())
         .filter((roomSet: [string, Set<string>]) => {
           const [roomName, roomOwner] = roomSet;

@@ -2,7 +2,11 @@ import { Server } from "socket.io";
 
 export default function socketController(io: Server) {
   io.on("connection", (socket) => {
-    console.log("a user connected");
+    console.log("a user connected --->", socket.id);
+
+    socket.on("connect", () => {
+      console.log("a user disconnected --->", socket.id);
+    });
 
     socket.on("message", (data, room) => {
       if (!room) {
@@ -14,17 +18,27 @@ export default function socketController(io: Server) {
       }
     });
 
-    // users can join as many rooms as they want
-    socket.on("join", async (room, cb) => {
+    // join a room
+    socket.on(SocketEvents.JOIN, async (room, cb) => {
       socket.join(room);
       const players = await socket.in(room).fetchSockets();
-      console.log(
-        "players",
-        players.map((player) => player.id)
-      );
-      console.log(socket.id);
-      socket.to(room).emit("join", socket.id);
+
+      socket.to(room).emit(SocketEvents.JOIN, socket.id);
       cb(JSON.stringify(players.map((player) => player.id)));
+    });
+
+    // get available rooms
+    socket.on(SocketEvents.GET_ROOMS, async (room, cb) => {
+      const rooms = io.of("/").adapter.rooms;
+      // filter rooms eleminiating the one that has the same name as the user
+      console.log(rooms, Object.entries(rooms));
+      const filteredRooms: string[] = Array.from(rooms.entries())
+        .filter((roomSet: [string, Set<string>]) => {
+          const [roomName, roomOwner] = roomSet;
+          return !roomOwner.has(roomName);
+        })
+        .map((room: [string, Set<string>]) => room[0]);
+      cb(filteredRooms);
     });
 
     // movement
@@ -32,4 +46,12 @@ export default function socketController(io: Server) {
       socket.broadcast.emit("movement", data);
     });
   });
+}
+
+export enum SocketEvents {
+  MESSAGE = "message",
+  JOIN = "join",
+  GET_ROOMS = "get-rooms",
+  MOVE = "move",
+  DISCONNECT = "disconnect",
 }

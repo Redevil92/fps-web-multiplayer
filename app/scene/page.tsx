@@ -2,7 +2,7 @@
 import FpsScene from "./scene";
 import { socket, userSocket } from "../../socket";
 import { useEffect, useState } from "react";
-import { Vector3 } from "three";
+import { SocketEvents } from "@/socketController";
 
 export default function Scene() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -27,6 +27,8 @@ export default function Scene() {
       socket.io.engine.on("upgrade", (transport) => {
         setTransport(transport.name);
       });
+
+      getRooms();
     }
 
     function onDisconnect() {
@@ -39,8 +41,6 @@ export default function Scene() {
     socket.on("message", displayMessage);
 
     userSocket.on("connect_error", displayMessage);
-
-    console.log(socket);
 
     return () => {
       socket.off("connect", onConnect);
@@ -60,12 +60,20 @@ export default function Scene() {
     socket.emit("message", { message: input }, room);
   }
 
+  function getRooms() {
+    socket.emit(SocketEvents.GET_ROOMS, room, (rooms: string[]) => {
+      console.log("ROOMS--->", rooms);
+    });
+  }
+
   function handleJoinRoom(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    socket.emit("join", room, (data: any) => {
+    socket.emit(SocketEvents.JOIN, room, (data: string) => {
       console.log(data);
     });
+
+    getRooms();
   }
 
   return (

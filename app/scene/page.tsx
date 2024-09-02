@@ -1,5 +1,6 @@
 "use client";
 import FpsScene from "./scene";
+import SelectedRoom from "./selectedRoom";
 import { socket, userSocket } from "../../socket";
 import { useEffect, useState } from "react";
 import { SocketEvents } from "@/socketController";
@@ -69,6 +70,13 @@ export default function Scene() {
     });
   }
 
+  function joinRoom(room: string) {
+    socket.emit(SocketEvents.JOIN, room, (data: string) => {
+      console.log(data);
+    });
+    setJoinedRoom(room);
+  }
+
   function handleJoinRoom(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
@@ -82,10 +90,7 @@ export default function Scene() {
   const roomElements = availableRooms.map((room) => (
     <div key={room} className="border-2 border-red-300 m-1">
       {room}
-      <button
-        className="bg-slate-400 ml-2 "
-        onClick={() => setJoinedRoom(room)}
-      >
+      <button className="bg-slate-400 ml-2 " onClick={() => joinRoom(room)}>
         JOIN
       </button>
     </div>
@@ -99,15 +104,7 @@ export default function Scene() {
           User id: <strong>{userId}</strong>
         </p>
         {joinedRoom ? (
-          <>
-            <button
-              onClick={() => setJoinedRoom("")}
-              className="bg-slate-400 ml-2 "
-            >
-              back to room list
-            </button>
-            <div>YOUR ROOM: {joinedRoom}</div>
-          </>
+          <SelectedRoom roomId={joinedRoom} />
         ) : (
           <>
             <div className="border-2 border-spacing-1">
@@ -144,7 +141,7 @@ export default function Scene() {
                   <li key={index}>{message}</li>
                 ))}
               </ul>
-            </div>{" "}
+            </div>
           </>
         )}
       </div>

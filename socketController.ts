@@ -8,12 +8,18 @@ export default function socketController(io: Server) {
       console.log("a user disconnected --->", socket.id);
     });
 
-    socket.on("message", (data, room) => {
+    socket.on(SocketEvents.MESSAGE, (data, room) => {
+      const payload: MessagePayload = {
+        message: data.message,
+        room,
+        user: socket.id,
+      };
+      console.log("SOCK MESS", room);
       if (!room) {
         // socket.emit("message", data); // this will send the message to all the users including the sender
-        socket.broadcast.emit("message", data);
+        socket.broadcast.emit("message", payload);
       } else {
-        socket.to(room).emit("message", data);
+        socket.to(room).emit("message", payload);
       }
     });
 
@@ -44,6 +50,12 @@ export default function socketController(io: Server) {
       socket.broadcast.emit("movement", data);
     });
   });
+}
+
+export interface MessagePayload {
+  message: string;
+  room: string;
+  user: string;
 }
 
 export enum SocketEvents {

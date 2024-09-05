@@ -6,9 +6,12 @@ import { MessagePayload, SocketEvents } from "@/socketController";
 export default function SelectedRoom({ roomId }: { roomId: string }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [messageToSend, setMessageToSend] = useState<string>("");
+  const [roomPlayers, setRoomPlayer] = useState<string[]>([]);
 
   useEffect(() => {
     socket.on(SocketEvents.MESSAGE, displayMessage);
+
+    getRoomPlayers();
 
     return () => {
       socket.off(SocketEvents.MESSAGE, displayMessage);
@@ -27,12 +30,22 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
     }
   }
 
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+  function sendNewMessage(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     console.log("EMIT", roomId);
     socket.emit("message", { message: messageToSend }, roomId);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      `${socket.id}: ${messageToSend}`,
+    ]);
   }
+
   // TODO:  dispaly players in the room
+  function getRoomPlayers() {
+    socket.emit(SocketEvents.GET_PLAYERS, roomId, (players: string[]) => {
+      setRoomPlayer(players);
+    });
+  }
 
   // registered socket event for new people joining the room
   // registered socket event for new messages in the room
@@ -52,7 +65,7 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
         type="text"
         name="myInput"
       />
-      <button onClick={handleSubmit}>SEND NEW MESSAGE</button>
+      <button onClick={sendNewMessage}>SEND NEW MESSAGE</button>
       <hr />
       <div>
         <ul>

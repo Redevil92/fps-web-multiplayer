@@ -45,6 +45,13 @@ export default function socketController(io: Server) {
       cb(filteredRooms);
     });
 
+    //get players in the room
+    socket.on(SocketEvents.GET_PLAYERS, async (room, cb) => {
+      const users = io.sockets.adapter.rooms.get(room);
+      console.log("USERS", users);
+      cb(users);
+    });
+
     // movement
     socket.on("move", (data) => {
       socket.broadcast.emit("movement", data);
@@ -64,4 +71,5 @@ export enum SocketEvents {
   GET_ROOMS = "get-rooms",
   MOVE = "move",
   DISCONNECT = "disconnect",
+  GET_PLAYERS = "get_players",
 }

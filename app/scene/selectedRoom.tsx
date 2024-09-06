@@ -11,12 +11,14 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
   useEffect(() => {
     socket.on(SocketEvents.MESSAGE, displayMessage);
 
-    getRoomPlayers();
-
     return () => {
       socket.off(SocketEvents.MESSAGE, displayMessage);
     };
   }, []);
+
+  useEffect(() => {
+    getRoomPlayers();
+  }, [roomId]);
 
   const exitRoom = () => {};
 

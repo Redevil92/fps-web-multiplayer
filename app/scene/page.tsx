@@ -5,6 +5,8 @@ import { socket, userSocket } from "../../socket";
 import { useEffect, useState } from "react";
 import { SocketEvents } from "@/socketController";
 
+// create context to hold selected room and maybe players in the room
+
 export default function Scene() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [transport, setTransport] = useState<string>("N/A");

@@ -20,7 +20,9 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
     getRoomPlayers();
   }, [roomId]);
 
-  const exitRoom = () => {};
+  function onExitRoom() {
+    socket.emit(SocketEvents.EXIT_ROOM, roomId, () => {});
+  }
 
   function displayMessage(messagePayload: MessagePayload) {
     console.log(messagePayload);
@@ -32,9 +34,13 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
     }
   }
 
+  function exitRoom() {
+    socket.emit(SocketEvents.EXIT_ROOM, roomId);
+  }
+
   function sendNewMessage(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    console.log("EMIT", roomId);
+
     socket.emit("message", { message: messageToSend }, roomId);
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -56,8 +62,8 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
     <>
       <h1>Room {roomId}</h1>
       <p>Here is the room with id</p>
-      <button onClick={exitRoom} className="bg-slate-400 ml-2 ">
-        back to room list
+      <button onClick={onExitRoom} className="bg-slate-400 ml-2 ">
+        EXIT ROOM
       </button>
       <hr />
       <input

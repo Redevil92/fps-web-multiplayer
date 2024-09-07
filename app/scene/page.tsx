@@ -42,9 +42,10 @@ export default function Scene() {
       setTransport("N/A");
     }
 
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    socket.on("message", displayMessage);
+    socket.on(SocketEvents.CONNECT, onConnect);
+    socket.on(SocketEvents.DISCONNECT, onDisconnect);
+    socket.on(SocketEvents.MESSAGE, displayMessage);
+    socket.on(SocketEvents.EXIT_ROOM, removeJoinedRoomIfExited);
 
     userSocket.on("connect_error", displayMessage);
 
@@ -55,6 +56,13 @@ export default function Scene() {
     };
   }, []);
 
+  function removeJoinedRoomIfExited(playerId: string) {
+    console.log("EXITED ROOM", playerId);
+    if (playerId === userId) {
+      setJoinedRoom("");
+    }
+  }
+
   function displayMessage(message: { message: string }) {
     setMessages((prevMessages) => [...prevMessages, message.message]);
     console.log("MESSAGES", message);
@@ -63,7 +71,7 @@ export default function Scene() {
   function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    socket.emit("message", { message: input }, room);
+    socket.emit(SocketEvents.MESSAGE, { message: input }, room);
   }
 
   function getRooms() {

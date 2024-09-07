@@ -6,7 +6,6 @@ import { Gltf, Environment, Fisheye } from "@react-three/drei";
 import Player from "./player";
 import CurrentPlayer from "./currentPlayer";
 
-import { socket } from "@/socket";
 import { useEffect, useState } from "react";
 
 interface PlayerData {
@@ -17,22 +16,8 @@ export default function FpsScene() {
   const [players, setPlayers] = useState<PlayerData[]>([]);
 
   useEffect(() => {
-    socket.on("message", displayMessage);
-    socket.on("join", onJoinRoom);
-
-    return () => {
-      socket.off("message", displayMessage);
-      socket.off("join", onJoinRoom);
-    };
+    return () => {};
   }, []);
-
-  function onJoinRoom(joinedPlayerId: string) {
-    console.log("PLAYERS", joinedPlayerId);
-  }
-
-  function displayMessage(message: { message: string }) {
-    console.log("MESSAGES", message);
-  }
 
   return (
     <Canvas

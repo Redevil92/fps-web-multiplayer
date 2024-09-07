@@ -4,7 +4,7 @@ export default function socketController(io: Server) {
   io.on("connection", (socket) => {
     console.log("a user connected --->", socket.id);
 
-    socket.on("connect", () => {
+    socket.on(SocketEvents.CONNECT, () => {
       console.log("a user disconnected --->", socket.id);
     });
 
@@ -29,7 +29,17 @@ export default function socketController(io: Server) {
       const players = await socket.in(room).fetchSockets();
 
       socket.to(room).emit(SocketEvents.JOIN, socket.id);
-      cb(JSON.stringify(players.map((player) => player.id)));
+      cb(players.map((player) => player.id));
+    });
+
+    // join a room
+    socket.on(SocketEvents.EXIT_ROOM, async (room, cb) => {
+      socket.leave(room);
+      const players = await socket.in(room).fetchSockets();
+
+      socket.to(socket.id).emit(SocketEvents.EXIT_ROOM, socket.id);
+      socket.to(room).emit(SocketEvents.EXIT_ROOM, socket.id);
+      cb(players.map((player) => player.id));
     });
 
     // get available rooms
@@ -68,8 +78,10 @@ export interface MessagePayload {
 export enum SocketEvents {
   MESSAGE = "message",
   JOIN = "join",
+  EXIT_ROOM = "exit-room",
   GET_ROOMS = "get-rooms",
   MOVE = "move",
+  CONNECT = "connect",
   DISCONNECT = "disconnect",
   GET_PLAYERS = "get_players",
 }

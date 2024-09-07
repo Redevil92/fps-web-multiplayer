@@ -36,9 +36,11 @@ export default function socketController(io: Server) {
     socket.on(SocketEvents.EXIT_ROOM, async (room, cb) => {
       socket.leave(room);
       const players = await socket.in(room).fetchSockets();
+      console.log("EXITING ROOM FOR", socket.id);
 
-      socket.to(socket.id).emit(SocketEvents.EXIT_ROOM, socket.id);
-      socket.to(room).emit(SocketEvents.EXIT_ROOM, socket.id);
+      socket.broadcast.to(room).emit(SocketEvents.EXIT_ROOM, socket.id);
+      socket.emit(SocketEvents.EXIT_ROOM, socket.id);
+
       cb(players.map((player) => player.id));
     });
 

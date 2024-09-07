@@ -57,8 +57,10 @@ export default function Scene() {
   }, []);
 
   function removeJoinedRoomIfExited(playerId: string) {
-    console.log("EXITED ROOM", playerId);
+    console.log("EXIT ROOM", playerId);
+    console.log(1, playerId, 2, userId);
     if (playerId === userId) {
+      console.log("JOINED");
       setJoinedRoom("");
     }
   }

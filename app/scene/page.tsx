@@ -25,23 +25,6 @@ export default function Scene() {
       onConnect();
     }
 
-    async function onConnect() {
-      setIsConnected(true);
-      setTransport(socket.io.engine.transport.name);
-      setUserId(socket.id || "");
-
-      socket.io.engine.on("upgrade", (transport) => {
-        setTransport(transport.name);
-      });
-
-      getRooms();
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-      setTransport("N/A");
-    }
-
     socket.on(SocketEvents.CONNECT, onConnect);
     socket.on(SocketEvents.DISCONNECT, onDisconnect);
     socket.on(SocketEvents.MESSAGE, displayMessage);
@@ -49,25 +32,41 @@ export default function Scene() {
 
     userSocket.on("connect_error", displayMessage);
 
+    enum SocketActions {}
+
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-      socket.off("message", displayMessage);
+      socket.off(SocketEvents.CONNECT, onConnect);
+      socket.off(SocketEvents.DISCONNECT, onDisconnect);
+      socket.off(SocketEvents.MESSAGE, displayMessage);
+      socket.off(SocketEvents.EXIT_ROOM, displayMessage);
     };
-  }, []);
+  }, [userId]);
 
   function removeJoinedRoomIfExited(playerId: string) {
-    console.log("EXIT ROOM", playerId);
-    console.log(1, playerId, 2, userId);
     if (playerId === userId) {
-      console.log("JOINED");
       setJoinedRoom("");
     }
   }
 
+  function onConnect() {
+    setIsConnected(true);
+    setTransport(socket.io.engine.transport.name);
+    setUserId(socket.id || "");
+
+    socket.io.engine.on("upgrade", (transport) => {
+      setTransport(transport.name);
+    });
+
+    getRooms();
+  }
+
+  function onDisconnect() {
+    setIsConnected(false);
+    setTransport("N/A");
+  }
+
   function displayMessage(message: { message: string }) {
     setMessages((prevMessages) => [...prevMessages, message.message]);
-    console.log("MESSAGES", message);
   }
 
   function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {

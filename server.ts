@@ -14,7 +14,12 @@ const handler = app.getRequestHandler();
 app.prepare().then(() => {
   const httpServer = createServer(handler);
 
-  const io = new Server(httpServer, {
+  const io = new Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData
+  >(httpServer, {
     cors: {
       origin: ["http://localhost:3000", "https://admin.socket.io"],
       methods: ["GET", "POST"],

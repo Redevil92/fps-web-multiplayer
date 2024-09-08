@@ -45,7 +45,7 @@ export default function socketController(io: Server) {
     });
 
     // get available rooms
-    socket.on(SocketEvents.GET_ROOMS, async (room, cb) => {
+    socket.on(SocketEvents.GET_ROOMS, (cb) => {
       const rooms = io.of("/").adapter.rooms;
       // filter rooms eleminiating the one that has the same name as the user
       const filteredRooms: string[] = Array.from(rooms.entries())
@@ -58,14 +58,14 @@ export default function socketController(io: Server) {
     });
 
     //get players in the room
-    socket.on(SocketEvents.GET_PLAYERS, async (room, cb) => {
+    socket.on(SocketEvents.GET_PLAYERS, (room, cb) => {
       const users = io.sockets.adapter.rooms.get(room);
       console.log("USERS", users);
       cb(users);
     });
 
     // movement
-    socket.on("move", (data) => {
+    socket.on(SocketEvents.MOVE, (room, data) => {
       socket.broadcast.emit("movement", data);
     });
   });

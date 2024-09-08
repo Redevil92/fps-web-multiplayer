@@ -34,10 +34,6 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
     }
   }
 
-  function exitRoom() {
-    socket.emit(SocketEvents.EXIT_ROOM, roomId);
-  }
-
   function sendNewMessage(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 

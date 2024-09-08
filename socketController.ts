@@ -1,6 +1,13 @@
 import { Server } from "socket.io";
 
-export default function socketController(io: Server) {
+export default function socketController(
+  io: Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData
+  >
+) {
   io.on("connection", (socket) => {
     console.log("a user connected --->", socket.id);
 

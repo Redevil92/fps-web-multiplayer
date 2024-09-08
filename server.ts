@@ -31,24 +31,24 @@ app.prepare().then(() => {
     mode: "development",
   });
 
-  const userIo = io.of("/user");
-  userIo.on("connection", (socket) => {
-    console.log(`User connected with username -> ${(socket as any).username}`);
-  });
+  // const userIo = io.of("/user");
+  // userIo.on("connection", (socket) => {
+  //   console.log(`User connected with username -> ${(socket as any).username}`);
+  // });
 
-  userIo.use((socket, next) => {
-    const token = socket.handshake.auth.token;
-    if (token) {
-      (socket as any).username = getUsernameFromToken(token);
-      next();
-    } else {
-      next(new Error("unauthorized, token not provided"));
-    }
-  });
+  // userIo.use((socket, next) => {
+  //   const token = socket.handshake.auth.token;
+  //   if (token) {
+  //     (socket as any).username = getUsernameFromToken(token);
+  //     next();
+  //   } else {
+  //     next(new Error("unauthorized, token not provided"));
+  //   }
+  // });
 
-  function getUsernameFromToken(token: string) {
-    return `Username ${token}`;
-  }
+  // function getUsernameFromToken(token: string) {
+  //   return `Username ${token}`;
+  // }
 
   socketController(io);
 

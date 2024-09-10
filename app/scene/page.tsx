@@ -3,7 +3,6 @@ import FpsScene from "./scene";
 import SelectedRoom from "./selectedRoom";
 import { socket, userSocket } from "../../socket";
 import { useEffect, useState } from "react";
-import { SocketEvents } from "@/socketController";
 
 // create context to hold selected room and maybe players in the room
 
@@ -25,20 +24,21 @@ export default function Scene() {
       onConnect();
     }
 
-    socket.on(SocketEvents.CONNECT, onConnect);
-    socket.on(SocketEvents.DISCONNECT, onDisconnect);
-    socket.on(SocketEvents.MESSAGE, displayMessage);
-    socket.on(SocketEvents.EXIT_ROOM, removeJoinedRoomIfExited);
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("message", displayMessage);
+    socket.on("exitRoom", removeJoinedRoomIfExited);
 
     userSocket.on("connect_error", displayMessage);
 
     enum SocketActions {}
 
     return () => {
-      socket.off(SocketEvents.CONNECT, onConnect);
-      socket.off(SocketEvents.DISCONNECT, onDisconnect);
-      socket.off(SocketEvents.MESSAGE, displayMessage);
-      socket.off(SocketEvents.EXIT_ROOM, displayMessage);
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("message", displayMessage);
+      socket.off("exitRoom", removeJoinedRoomIfExited);
+      socket.off("connect_error", displayMessage);
     };
   }, [userId]);
 
@@ -72,18 +72,18 @@ export default function Scene() {
   function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    socket.emit(SocketEvents.MESSAGE, { message: input }, room);
+    socket.emit("message", { message: input }, room);
   }
 
   function getRooms() {
-    socket.emit(SocketEvents.GET_ROOMS, room, (rooms: string[]) => {
+    socket.emit("getRooms", (rooms: string[]) => {
       setAvailableRooms(rooms);
     });
   }
 
   function joinRoom(room: string) {
-    socket.emit(SocketEvents.JOIN, room, (data: string) => {
-      console.log(data);
+    socket.emit("join", room, (playersInRoom: string[]) => {
+      console.log(playersInRoom);
     });
     setJoinedRoom(room);
   }
@@ -91,8 +91,8 @@ export default function Scene() {
   function handleJoinRoom(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    socket.emit(SocketEvents.JOIN, room, (data: string) => {
-      console.log(data);
+    socket.emit("join", room, (playersInRoom: string[]) => {
+      console.log(playersInRoom);
     });
 
     getRooms();

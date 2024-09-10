@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { socket, userSocket } from "../../socket";
-import { MessagePayload, SocketEvents } from "@/socketController";
+import { MessagePayload } from "@/socketInterfaces";
 
 export default function SelectedRoom({ roomId }: { roomId: string }) {
   const [messages, setMessages] = useState<string[]>([]);
@@ -9,10 +9,10 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
   const [roomPlayers, setRoomPlayer] = useState<string[]>([]);
 
   useEffect(() => {
-    socket.on(SocketEvents.MESSAGE, displayMessage);
+    socket.on("message", displayMessage);
 
     return () => {
-      socket.off(SocketEvents.MESSAGE, displayMessage);
+      socket.off("message", displayMessage);
     };
   }, []);
 
@@ -21,7 +21,7 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
   }, [roomId]);
 
   function onExitRoom() {
-    socket.emit(SocketEvents.EXIT_ROOM, roomId, () => {});
+    socket.emit("exitRoom", roomId, () => {});
   }
 
   function displayMessage(messagePayload: MessagePayload) {
@@ -46,7 +46,7 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
 
   // TODO:  dispaly players in the room
   function getRoomPlayers() {
-    socket.emit(SocketEvents.GET_PLAYERS, roomId, (players: string[]) => {
+    socket.emit("getPlayers", roomId, (players: string[]) => {
       setRoomPlayer(players);
     });
   }

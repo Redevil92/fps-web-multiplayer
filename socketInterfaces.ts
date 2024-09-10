@@ -1,5 +1,4 @@
 import { Vector3 } from "@react-three/fiber";
-import { MessagePayload } from "./socketController";
 
 export interface ServerToClientEvents {
   connect: () => void;

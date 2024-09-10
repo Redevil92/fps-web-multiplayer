@@ -28,7 +28,7 @@ export default function socketController(
         room,
         user: socket.id,
       };
-      console.log("SOCK MESS", room);
+
       if (!room) {
         // socket.emit("message", data); // this will send the message to all the users including the sender
         socket.broadcast.emit("message", payload);

@@ -1,4 +1,11 @@
 import { Server } from "socket.io";
+import {
+  ClientToServerEvents,
+  InterServerEvents,
+  MessagePayload,
+  ServerToClientEvents,
+  SocketData,
+} from "./socketInterfaces";
 
 export default function socketController(
   io: Server<
@@ -11,11 +18,11 @@ export default function socketController(
   io.on("connection", (socket) => {
     console.log("a user connected --->", socket.id);
 
-    socket.on(SocketEvents.CONNECT, () => {
+    socket.on("connect", () => {
       console.log("a user disconnected --->", socket.id);
     });
 
-    socket.on(SocketEvents.MESSAGE, (data, room) => {
+    socket.on("message", (data, room) => {
       const payload: MessagePayload = {
         message: data.message,
         room,
@@ -31,28 +38,28 @@ export default function socketController(
     });
 
     // join a room
-    socket.on(SocketEvents.JOIN, async (room, cb) => {
+    socket.on("join", async (room, cb) => {
       socket.join(room);
       const players = await socket.in(room).fetchSockets();
 
-      socket.to(room).emit(SocketEvents.JOIN, socket.id);
+      socket.to(room).emit("join", { user: socket.id, room });
       cb(players.map((player) => player.id));
     });
 
     // join a room
-    socket.on(SocketEvents.EXIT_ROOM, async (room, cb) => {
+    socket.on("exitRoom", async (room, cb) => {
       socket.leave(room);
       const players = await socket.in(room).fetchSockets();
       console.log("EXITING ROOM FOR", socket.id);
 
-      socket.broadcast.to(room).emit(SocketEvents.EXIT_ROOM, socket.id);
-      socket.emit(SocketEvents.EXIT_ROOM, socket.id);
+      socket.broadcast.to(room).emit("exitRoom", socket.id);
+      socket.emit("exitRoom", socket.id);
 
       cb(players.map((player) => player.id));
     });
 
     // get available rooms
-    socket.on(SocketEvents.GET_ROOMS, (cb) => {
+    socket.on("getRooms", (cb) => {
       const rooms = io.of("/").adapter.rooms;
       // filter rooms eleminiating the one that has the same name as the user
       const filteredRooms: string[] = Array.from(rooms.entries())
@@ -65,32 +72,14 @@ export default function socketController(
     });
 
     //get players in the room
-    socket.on(SocketEvents.GET_PLAYERS, (room, cb) => {
+    socket.on("getPlayers", (room, cb) => {
       const users = io.sockets.adapter.rooms.get(room);
-      console.log("USERS", users);
-      cb(users);
+      cb(Array.from(users ?? []));
     });
 
     // movement
-    socket.on(SocketEvents.MOVE, (room, data) => {
-      socket.broadcast.emit("movement", data);
+    socket.on("move", (room, data) => {
+      socket.broadcast.to(room).emit("move", data);
     });
   });
-}
-
-export interface MessagePayload {
-  message: string;
-  room: string;
-  user: string;
-}
-
-export enum SocketEvents {
-  MESSAGE = "message",
-  JOIN = "join",
-  EXIT_ROOM = "exit-room",
-  GET_ROOMS = "get-rooms",
-  MOVE = "move",
-  CONNECT = "connect",
-  DISCONNECT = "disconnect",
-  GET_PLAYERS = "get_players",
 }

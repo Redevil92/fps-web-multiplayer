@@ -50,7 +50,6 @@ export default function socketController(
     socket.on("exitRoom", async (room, cb) => {
       socket.leave(room);
       const players = await socket.in(room).fetchSockets();
-      console.log("EXITING ROOM FOR", socket.id);
 
       socket.broadcast.to(room).emit("exitRoom", socket.id);
       socket.emit("exitRoom", socket.id);

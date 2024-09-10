@@ -10,9 +10,13 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
 
   useEffect(() => {
     socket.on("message", displayMessage);
+    socket.on("join", getRoomPlayers);
+    socket.on("exitRoom", getRoomPlayers);
 
     return () => {
       socket.off("message", displayMessage);
+      socket.off("join", getRoomPlayers);
+      socket.off("exitRoom", getRoomPlayers);
     };
   }, []);
 
@@ -70,6 +74,15 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
         name="myInput"
       />
       <button onClick={sendNewMessage}>SEND NEW MESSAGE</button>
+      <hr />
+      <div className="bg-zinc-300 p-2 mt-2">
+        <div className="mb-2">PLAYER</div>
+        <ul>
+          {roomPlayers.map((player, index) => (
+            <li key={index}>{player}</li>
+          ))}
+        </ul>
+      </div>
       <hr />
       <div>
         <ul>

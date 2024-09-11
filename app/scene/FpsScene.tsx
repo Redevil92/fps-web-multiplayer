@@ -12,7 +12,11 @@ interface PlayerData {
   position: Vector3;
 }
 
-export default function FpsScene() {
+interface FpsSceneProps {
+  roomId: string;
+}
+
+export default function FpsScene(props: FpsSceneProps) {
   const [players, setPlayers] = useState<PlayerData[]>([]);
 
   useEffect(() => {

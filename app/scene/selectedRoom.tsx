@@ -1,12 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { socket, userSocket } from "../../socket";
 import { MessagePayload } from "@/socketInterfaces";
+import { RoomContext } from "../context/roomContext";
 
-export default function SelectedRoom({ roomId }: { roomId: string }) {
+export default function SelectedRoom() {
   const [messages, setMessages] = useState<string[]>([]);
   const [messageToSend, setMessageToSend] = useState<string>("");
   const [roomPlayers, setRoomPlayer] = useState<string[]>([]);
+
+  const roomContext = useContext(RoomContext);
 
   useEffect(() => {
     socket.on("message", displayMessage);
@@ -22,15 +25,15 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
 
   useEffect(() => {
     getRoomPlayers();
-  }, [roomId]);
+  }, [roomContext.selectedRoom]);
 
   function onExitRoom() {
-    socket.emit("exitRoom", roomId, () => {});
+    socket.emit("exitRoom", roomContext.selectedRoom, () => {});
   }
 
   function displayMessage(messagePayload: MessagePayload) {
     console.log(messagePayload);
-    if (messagePayload.room === roomId) {
+    if (messagePayload.room === roomContext.selectedRoom) {
       setMessages((prevMessages) => [
         ...prevMessages,
         `${messagePayload.user}: ${messagePayload.message}`,
@@ -41,7 +44,11 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
   function sendNewMessage(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-    socket.emit("message", { message: messageToSend }, roomId);
+    socket.emit(
+      "message",
+      { message: messageToSend },
+      roomContext.selectedRoom
+    );
     setMessages((prevMessages) => [
       ...prevMessages,
       `${socket.id}: ${messageToSend}`,
@@ -50,7 +57,7 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
 
   // TODO:  dispaly players in the room
   function getRoomPlayers() {
-    socket.emit("getPlayers", roomId, (players: string[]) => {
+    socket.emit("getPlayers", roomContext.selectedRoom, (players: string[]) => {
       setRoomPlayer(players);
     });
   }
@@ -60,7 +67,7 @@ export default function SelectedRoom({ roomId }: { roomId: string }) {
 
   return (
     <>
-      <h1>Room {roomId}</h1>
+      <h1>Room {roomContext.selectedRoom}</h1>
       <p>Here is the room with id</p>
       <button onClick={onExitRoom} className="bg-slate-400 ml-2 ">
         EXIT ROOM

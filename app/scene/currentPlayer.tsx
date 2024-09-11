@@ -7,16 +7,20 @@ import Controller from "ecctrl";
 import {
   LegacyRef,
   MutableRefObject,
+  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { Group, Mesh, Object3DEventMap, Vector3 } from "three";
+import { RoomContext } from "../context/roomContext";
 
 export default function Player() {
   const ref = useRef<Group<Object3DEventMap>>(null);
   const [playerSpeed, setPlayerSpeed] = useState(5);
   const [playerPosition, setPlayerPosition] = useState(new Vector3(0, 10, 0));
+
+  const roomContext = useContext(RoomContext);
 
   const keyboardMap = [
     { name: "forward", keys: ["ArrowUp", "KeyW"] },
@@ -28,6 +32,7 @@ export default function Player() {
   ];
 
   function keyboardControlsHandler(name: string, pressed: boolean) {
+    console.log("ROOM", roomContext.selectedRoom);
     console.log(name, pressed, ref.current);
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
     console.log(socket);

@@ -87,10 +87,21 @@ export default function Scene() {
   //   setJoinedRoom(room);
   // }
 
-  function handleJoinRoom(e: React.MouseEvent<HTMLButtonElement>) {
+  function createAndJoinRoom(
+    e: React.MouseEvent<HTMLButtonElement>,
+    room: string
+  ) {
+    handleJoinRoom(e, room);
+    setJoinedRoom(room);
+  }
+
+  function handleJoinRoom(
+    e: React.MouseEvent<HTMLButtonElement>,
+    roomToJoin: string
+  ) {
     e.preventDefault();
 
-    socket.emit("join", room, (playersInRoom: string[]) => {
+    socket.emit("join", roomToJoin, (playersInRoom: string[]) => {
       console.log(playersInRoom);
     });
 
@@ -102,7 +113,8 @@ export default function Scene() {
       {availableRoom}
       <button
         className="bg-slate-400 ml-2 "
-        onClick={() => {
+        onClick={(e) => {
+          handleJoinRoom(e, availableRoom);
           setJoinedRoom(availableRoom);
         }}
       >
@@ -149,7 +161,9 @@ export default function Scene() {
                     type="text"
                     name="myInput"
                   />
-                  <button onClick={handleJoinRoom}>CREATE</button>
+                  <button onClick={(e) => createAndJoinRoom(e, room)}>
+                    CREATE & JOIN
+                  </button>
                 </div>
               </div>
               <h3 style={{ marginTop: "20px" }}>SOCKET MESSAGES:</h3>
@@ -163,8 +177,7 @@ export default function Scene() {
             </>
           )}
         </div>
-
-        <FpsScene roomId={joinedRoom} />
+        {joinedRoom && <FpsScene roomId={joinedRoom} />}
       </div>
     </RoomContext.Provider>
   );

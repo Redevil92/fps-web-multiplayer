@@ -57,6 +57,7 @@ export default function SelectedRoom() {
 
   // TODO:  dispaly players in the room
   function getRoomPlayers() {
+    console.log("NEW PLAYER JOINED");
     socket.emit("getPlayers", roomContext.selectedRoom, (players: string[]) => {
       setRoomPlayer(players);
     });

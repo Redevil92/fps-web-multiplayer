@@ -31,7 +31,22 @@ export default function Player() {
     { name: "run", keys: ["Shift"] },
   ];
 
+  useEffect(() => {
+    function refresh() {
+      emitPlayerMove();
+      setTimeout(refresh, 20);
+      // ...
+    }
+
+    // initial call, or just call refresh directly
+    setTimeout(refresh, 20);
+  }, []);
+
   function keyboardControlsHandler(name: string, pressed: boolean) {
+    //emitPlayerMove();
+  }
+
+  function emitPlayerMove() {
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
 
     if (playerPosition && socket.id) {

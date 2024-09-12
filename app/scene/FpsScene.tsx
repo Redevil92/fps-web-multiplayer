@@ -6,64 +6,99 @@ import { Gltf, Environment, Fisheye } from "@react-three/drei";
 import Player from "./player";
 import CurrentPlayer from "./currentPlayer";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { socket } from "@/socket";
+import { RoomContext } from "../context/roomContext";
+import { PlayerData } from "@/socketInterfaces";
 
-interface PlayerData {
-  position: Vector3;
-}
-
-interface FpsSceneProps {
-  roomId: string;
-}
-
-export default function FpsScene(props: FpsSceneProps) {
+export default function FpsScene() {
   const [players, setPlayers] = useState<PlayerData[]>([]);
 
+  const roomContext = useContext(RoomContext);
+
   useEffect(() => {
-    return () => {};
+    // create players with default position
+    const playersData: PlayerData[] = roomContext.roomPlayers.map(
+      (playerId: string) => ({
+        playerPosition: [0, 0, 0],
+        playerId,
+      })
+    );
+
+    setPlayers(playersData);
+
+    // get position of players in the room
+    socket.on("move", onPlayerMove);
+
+    return () => {
+      socket.off("move", onPlayerMove);
+    };
   }, []);
 
+  const onPlayerMove = (playerData: PlayerData) => {
+    const playersData = [...players];
+    const index = playersData.findIndex(
+      (p) => p.playerId == playerData.playerId
+    );
+    if (index !== -1) {
+      playersData[index] = playerData;
+    } else {
+      playersData.push(playerData);
+    }
+
+    setPlayers(playersData);
+  };
+
   return (
-    <Canvas
-      style={{
-        position: "absolute",
-        right: "0px",
-        width: "70vw",
-        height: "100vh",
-      }}
-      shadows
-      onPointerDown={(e) => (e.target as any).requestPointerLock()}
-    >
-      <Fisheye zoom={0.4}>
-        <Environment files="/night.hdr" ground={{ scale: 100 }} />
-        <directionalLight
-          intensity={0.7}
-          castShadow
-          shadow-bias={-0.0004}
-          position={[-20, 20, 20]}
-        >
-          <orthographicCamera
-            attach="shadow-camera"
-            args={[-20, 20, 20, -20]}
-          />
-        </directionalLight>
-        <ambientLight intensity={0.2} />
-        <Physics timeStep="vary">
-          <CurrentPlayer />
-          {players.map((player, index) => (
-            <Player key={index} position={player.position} />
-          ))}
-          <RigidBody type="fixed" colliders="trimesh">
-            <Gltf
-              castShadow
-              receiveShadow
-              rotation={[-Math.PI / 2, 0, 0]}
-              scale={0.11}
-              src="/fantasy_game_inn2-transformed.glb"
+    <>
+      {/* LIST:
+      {players.map((player, index) => (
+        <div key={player.playerId}>
+          {player.playerId}::{player.playerPosition}
+        </div>
+      ))} */}
+      <Canvas
+        style={{
+          position: "absolute",
+          right: "0px",
+          top: "60px",
+          width: "70vw",
+          height: "100vh",
+        }}
+        shadows
+        onPointerDown={(e) => (e.target as any).requestPointerLock()}
+      >
+        <Fisheye zoom={0.4}>
+          <Environment files="/night.hdr" ground={{ scale: 100 }} />
+          <directionalLight
+            intensity={0.7}
+            castShadow
+            shadow-bias={-0.0004}
+            position={[-20, 20, 20]}
+          >
+            <orthographicCamera
+              attach="shadow-camera"
+              args={[-20, 20, 20, -20]}
             />
-          </RigidBody>
-        </Physics>
-      </Fisheye>
-    </Canvas>
+          </directionalLight>
+          <ambientLight intensity={0.2} />
+          <Physics timeStep="vary">
+            <CurrentPlayer />
+            {players.map((player, index) => (
+              <Player key={index} position={player.playerPosition} />
+            ))}
+            <RigidBody type="fixed" colliders="trimesh">
+              <Gltf
+                castShadow
+                receiveShadow
+                rotation={[-Math.PI / 2, 0, 0]}
+                scale={0.11}
+                src="/fantasy_game_inn2-transformed.glb"
+              />
+            </RigidBody>
+          </Physics>
+        </Fisheye>
+      </Canvas>
+    </>
   );
 }

@@ -7,7 +7,7 @@ import { RoomContext } from "../context/roomContext";
 export default function SelectedRoom() {
   const [messages, setMessages] = useState<string[]>([]);
   const [messageToSend, setMessageToSend] = useState<string>("");
-  const [roomPlayers, setRoomPlayer] = useState<string[]>([]);
+  //const [roomPlayers, setRoomPlayer] = useState<string[]>([]);
 
   const roomContext = useContext(RoomContext);
 
@@ -55,16 +55,12 @@ export default function SelectedRoom() {
     ]);
   }
 
-  // TODO:  dispaly players in the room
   function getRoomPlayers() {
-    console.log("NEW PLAYER JOINED");
     socket.emit("getPlayers", roomContext.selectedRoom, (players: string[]) => {
-      setRoomPlayer(players);
+      roomContext.setRoomPlayers(players);
+      //setRoomPlayer(players);
     });
   }
-
-  // registered socket event for new people joining the room
-  // registered socket event for new messages in the room
 
   return (
     <>
@@ -86,7 +82,7 @@ export default function SelectedRoom() {
       <div className="bg-zinc-300 p-2 mt-2">
         <div className="mb-2">PLAYER</div>
         <ul>
-          {roomPlayers.map((player, index) => (
+          {roomContext.roomPlayers.map((player, index) => (
             <li key={index}>{player}</li>
           ))}
         </ul>

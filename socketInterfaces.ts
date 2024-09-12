@@ -6,7 +6,7 @@ export interface ServerToClientEvents {
   message: (message: MessagePayload) => void;
   join: (userAndRoom: UserAndRoom) => void;
   exitRoom: (player: string) => void;
-  move: (moveData: MoveData) => void;
+  move: (moveData: PlayerData) => void;
 }
 
 export interface ClientToServerEvents {
@@ -16,7 +16,7 @@ export interface ClientToServerEvents {
   exitRoom: (room: string, callback: (players: string[]) => void) => void;
   getRooms: (callback: (rooms: string[]) => void) => void;
   getPlayers: (room: string, callback: (players: string[]) => void) => void;
-  move: (room: string, moveData: MoveData) => void;
+  move: (room: string, moveData: PlayerData) => void;
 }
 
 export interface InterServerEvents {
@@ -44,7 +44,7 @@ export interface UserAndRoom {
   room: string;
 }
 
-export interface MoveData {
+export interface PlayerData {
   playerId: string;
   playerPosition: Vector3;
 }

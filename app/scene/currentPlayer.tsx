@@ -32,15 +32,14 @@ export default function Player() {
   ];
 
   function keyboardControlsHandler(name: string, pressed: boolean) {
-    console.log("ROOM", roomContext.selectedRoom);
-    console.log(name, pressed, ref.current);
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
-    console.log(socket);
-    socket.emit(
-      "message",
-      { message: socket.id + "-->" + JSON.stringify(playerPosition) },
-      ""
-    );
+
+    if (playerPosition && socket.id) {
+      socket.emit("move", roomContext.selectedRoom, {
+        playerId: socket.id,
+        playerPosition: [playerPosition.x, playerPosition.y, playerPosition.z],
+      });
+    }
   }
 
   function updateGlftHandler(event: Group<Object3DEventMap>) {

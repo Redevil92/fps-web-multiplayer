@@ -17,6 +17,7 @@ export default function Scene() {
   const [input, setInput] = useState("");
   const [room, setRoom] = useState("");
   const [joinedRoom, setJoinedRoom] = useState("");
+  const [roomPlayers, setRoomPlayer] = useState<string[]>([]);
 
   const [availableRooms, setAvailableRooms] = useState<string[]>([]);
 
@@ -124,7 +125,12 @@ export default function Scene() {
   ));
   return (
     <RoomContext.Provider
-      value={{ selectedRoom: joinedRoom, setSelectedRoom: setJoinedRoom }}
+      value={{
+        selectedRoom: joinedRoom,
+        setSelectedRoom: setJoinedRoom,
+        roomPlayers: roomPlayers,
+        setRoomPlayers: setRoomPlayer,
+      }}
     >
       <div style={{ display: "flex" }}>
         <div>
@@ -177,7 +183,7 @@ export default function Scene() {
             </>
           )}
         </div>
-        {joinedRoom && <FpsScene roomId={joinedRoom} />}
+        {joinedRoom && <FpsScene />}
       </div>
     </RoomContext.Provider>
   );

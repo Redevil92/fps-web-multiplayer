@@ -10,6 +10,7 @@ import { useContext, useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { RoomContext } from "../context/roomContext";
 import { PlayerData } from "@/socketInterfaces";
+import { Euler } from "three";
 
 export default function FpsScene() {
   const [players, setPlayers] = useState<PlayerData[]>([]);
@@ -21,6 +22,7 @@ export default function FpsScene() {
     const playersData: PlayerData[] = roomContext.roomPlayers.map(
       (playerId: string) => ({
         playerPosition: [0, 0, 0],
+        playerRotation: new Euler(),
         playerId,
       })
     );
@@ -85,7 +87,11 @@ export default function FpsScene() {
           <Physics timeStep="vary">
             <CurrentPlayer />
             {players.map((player, index) => (
-              <Player key={index} position={player.playerPosition} />
+              <Player
+                key={index}
+                position={player.playerPosition}
+                rotation={player.playerRotation}
+              />
             ))}
             <RigidBody type="fixed" colliders="trimesh">
               <Gltf

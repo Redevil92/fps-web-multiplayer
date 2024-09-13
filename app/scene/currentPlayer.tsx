@@ -12,7 +12,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { Group, Mesh, Object3DEventMap, Vector3 } from "three";
+import {
+  Euler,
+  Group,
+  Mesh,
+  Object3DEventMap,
+  Quaternion,
+  Vector3,
+} from "three";
 import { RoomContext } from "../context/roomContext";
 
 export default function Player() {
@@ -48,11 +55,18 @@ export default function Player() {
 
   function emitPlayerMove() {
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
+    const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
+    // TODO: include rotation in the player data
 
-    if (playerPosition && socket.id) {
+    if (playerPosition && playerRotation && socket.id) {
+      console.log(
+        playerRotation,
+        new Euler().setFromQuaternion(playerRotation)
+      );
       socket.emit("move", roomContext.selectedRoom, {
         playerId: socket.id,
         playerPosition: [playerPosition.x, playerPosition.y, playerPosition.z],
+        playerRotation: new Euler().setFromQuaternion(playerRotation),
       });
     }
   }

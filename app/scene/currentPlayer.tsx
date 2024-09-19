@@ -21,6 +21,7 @@ import {
   Vector3,
 } from "three";
 import { RoomContext } from "../context/roomContext";
+import { RigidBody } from "@react-three/rapier";
 
 export default function Player() {
   const ref = useRef<Group<Object3DEventMap>>(null);
@@ -55,18 +56,14 @@ export default function Player() {
 
   function emitPlayerMove() {
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
-    const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
+    //const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
     // TODO: include rotation in the player data
 
-    if (playerPosition && playerRotation && socket.id) {
-      console.log(
-        playerRotation,
-        new Euler().setFromQuaternion(playerRotation)
-      );
+    if (playerPosition && socket.id) {
       socket.emit("move", roomContext.selectedRoom, {
         playerId: socket.id,
         playerPosition: [playerPosition.x, playerPosition.y, playerPosition.z],
-        playerRotation: new Euler().setFromQuaternion(playerRotation),
+        //playerRotation: new Euler().setFromQuaternion(playerRotation),
       });
     }
   }

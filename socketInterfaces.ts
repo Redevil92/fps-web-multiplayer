@@ -48,5 +48,5 @@ export interface UserAndRoom {
 export interface PlayerData {
   playerId: string;
   playerPosition: Vector3;
-  playerRotation: Euler;
+  // playerRotation: Euler;
 }

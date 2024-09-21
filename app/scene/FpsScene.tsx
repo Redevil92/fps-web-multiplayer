@@ -22,7 +22,7 @@ export default function FpsScene() {
     const playersData: PlayerData[] = roomContext.roomPlayers.map(
       (playerId: string) => ({
         playerPosition: [0, 0, 0],
-        // playerRotation: new Euler(),
+        playerRotation: new Euler(),
         playerId,
       })
     );
@@ -93,7 +93,7 @@ export default function FpsScene() {
                 playerId={player.playerId}
                 key={index}
                 position={player.playerPosition}
-                // rotation={player.playerRotation}
+                rotation={player.playerRotation}
               />
             ))}
             <RigidBody type="fixed" colliders="trimesh">

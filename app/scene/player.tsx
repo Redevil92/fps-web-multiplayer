@@ -1,26 +1,18 @@
 "use client";
 
-import { Box, Gltf } from "@react-three/drei";
-import { useFrame, Vector3 } from "@react-three/fiber";
-import { quat, RigidBody } from "@react-three/rapier";
-import {} from "@react-three/rapier";
-import {
-  MutableRefObject,
-  RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Gltf } from "@react-three/drei";
+import { Vector3 } from "@react-three/fiber";
+import { RigidBody } from "@react-three/rapier";
 
 import * as THREE from "three";
 
 interface PlayerProps {
   position: Vector3;
   playerId: string;
-  // rotation: Euler;
+  rotation: THREE.Euler;
 }
 
-export default function Player({ position, playerId }: PlayerProps) {
+export default function Player({ position, rotation, playerId }: PlayerProps) {
   return (
     <RigidBody
       key={playerId}

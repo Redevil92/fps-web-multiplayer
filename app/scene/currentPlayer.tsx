@@ -56,14 +56,14 @@ export default function Player() {
 
   function emitPlayerMove() {
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
-    //const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
+    const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
     // TODO: include rotation in the player data
 
-    if (playerPosition && socket.id) {
+    if (playerPosition && playerRotation && socket.id) {
       socket.emit("move", roomContext.selectedRoom, {
         playerId: socket.id,
         playerPosition: [playerPosition.x, playerPosition.y, playerPosition.z],
-        //playerRotation: new Euler().setFromQuaternion(playerRotation),
+        playerRotation: new Euler().setFromQuaternion(playerRotation),
       });
     }
   }

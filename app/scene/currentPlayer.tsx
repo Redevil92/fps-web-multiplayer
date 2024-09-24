@@ -47,7 +47,7 @@ export default function Player() {
     }
 
     // initial call, or just call refresh directly
-    setTimeout(refresh, 20);
+    refresh();
   }, []);
 
   function keyboardControlsHandler(name: string, pressed: boolean) {
@@ -57,24 +57,20 @@ export default function Player() {
   function emitPlayerMove() {
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
     const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
-    // TODO: include rotation in the player data
 
+    // TODO: include rotation in the player data
     if (playerPosition && playerRotation && socket.id) {
       socket.emit("move", roomContext.selectedRoom, {
         playerId: socket.id,
         playerPosition: [playerPosition.x, playerPosition.y, playerPosition.z],
-        playerRotation: new Euler().setFromQuaternion(playerRotation),
+        playerRotation: [playerRotation.x, playerRotation.y, playerRotation.z],
       });
     }
   }
 
-  function updateGlftHandler(event: Group<Object3DEventMap>) {
-    console.log("UPDATE", event);
-  }
-
   return (
     <KeyboardControls onChange={keyboardControlsHandler} map={keyboardMap}>
-      <Controller maxVelLimit={5} position={playerPosition}>
+      <Controller maxVelLimit={5}>
         <Gltf
           ref={ref}
           castShadow
@@ -82,7 +78,6 @@ export default function Player() {
           scale={0.315}
           position={[0, -0.55, 0]}
           src="/ghost_w_tophat-transformed.glb"
-          onUpdate={updateGlftHandler}
         />
       </Controller>
     </KeyboardControls>

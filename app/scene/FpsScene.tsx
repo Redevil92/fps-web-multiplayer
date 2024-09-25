@@ -10,7 +10,7 @@ import { useContext, useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { RoomContext } from "../context/roomContext";
 import { PlayerData } from "@/socketInterfaces";
-import { Euler } from "three";
+import { Euler, Quaternion } from "three";
 
 export default function FpsScene() {
   const [players, setPlayers] = useState<PlayerData[]>([]);
@@ -22,7 +22,7 @@ export default function FpsScene() {
     const playersData: PlayerData[] = roomContext.roomPlayers.map(
       (playerId: string) => ({
         playerPosition: [0, 0, 0],
-        playerRotation: new Euler(),
+        playerRotation: new Quaternion(),
         playerId,
       })
     );
@@ -42,12 +42,13 @@ export default function FpsScene() {
     const index = playersData.findIndex(
       (p) => p.playerId == playerData.playerId
     );
+
     if (index !== -1) {
       playersData[index] = playerData;
     } else {
       playersData.push(playerData);
     }
-
+    console.log(playersData);
     setPlayers(playersData);
   };
 

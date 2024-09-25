@@ -63,7 +63,7 @@ export default function Player() {
       socket.emit("move", roomContext.selectedRoom, {
         playerId: socket.id,
         playerPosition: [playerPosition.x, playerPosition.y, playerPosition.z],
-        playerRotation: [playerRotation.x, playerRotation.y, playerRotation.z],
+        playerRotation: playerRotation,
       });
     }
   }

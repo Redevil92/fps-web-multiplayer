@@ -18,10 +18,10 @@ export default function Player({ position, rotation, playerId }: PlayerProps) {
 
   useEffect(() => {
     const newQuaternion = new THREE.Quaternion(
-      rotation.x,
-      rotation.y,
-      rotation.z,
-      rotation.w
+      rotation[0],
+      rotation[1],
+      rotation[2],
+      rotation[3]
     );
 
     testRef.current?.setNextKinematicRotation(newQuaternion);

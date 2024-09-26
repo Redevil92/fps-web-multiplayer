@@ -1,9 +1,9 @@
 "use client";
 
 import { Gltf, Text } from "@react-three/drei";
-import { Vector3 } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
-import { useEffect, useRef, useState } from "react";
+import { useFrame, Vector3 } from "@react-three/fiber";
+import { quat, RapierRigidBody, RigidBody } from "@react-three/rapier";
+import { useEffect, useRef } from "react";
 
 import * as THREE from "three";
 
@@ -14,16 +14,18 @@ interface PlayerProps {
 }
 
 export default function Player({ position, rotation, playerId }: PlayerProps) {
-  const testRef = useRef();
+  const testRef = useRef<RapierRigidBody | null>(null);
 
   useEffect(() => {
-    setInterval(function () {
-      // code to be executed repeatedly
-      console.log(playerId, "ROT", rotation);
-      // const newRotation = new THREE.Euler(rotation.x, rotation.y, rotation.z);
-      //  setEulerAngle(newRotation);
-    }, 1000);
-  }, []);
+    const newQuaternion = new THREE.Quaternion(
+      rotation.x,
+      rotation.y,
+      rotation.z,
+      rotation.w
+    );
+
+    testRef.current?.setNextKinematicRotation(newQuaternion);
+  }, [rotation]);
 
   return (
     <RigidBody
@@ -31,15 +33,8 @@ export default function Player({ position, rotation, playerId }: PlayerProps) {
       type="kinematicPosition"
       colliders="trimesh"
       position={position}
+      ref={testRef}
     >
-      {rotation && (
-        <Text position={[0, 2, 0]}>{`${rotation[0]
-          .toFixed(2)
-          .toString()}-${rotation[1].toFixed(2).toString()}-${rotation[2]
-          .toFixed(2)
-          .toString()}`}</Text>
-      )}
-
       <Gltf
         castShadow
         receiveShadow

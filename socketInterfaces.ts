@@ -1,5 +1,5 @@
 import { Vector3 } from "@react-three/fiber";
-import { Euler, Quaternion } from "three";
+import { Euler, Quaternion, Vector4 } from "three";
 
 export interface ServerToClientEvents {
   connect: () => void;
@@ -48,5 +48,5 @@ export interface UserAndRoom {
 export interface PlayerData {
   playerId: string;
   playerPosition: Vector3;
-  playerRotation: Quaternion;
+  playerRotation: [number, number, number, number];
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Gltf, Text } from "@react-three/drei";
-import { useFrame, Vector3 } from "@react-three/fiber";
+import { Quaternion, useFrame, Vector3 } from "@react-three/fiber";
 import { quat, RapierRigidBody, RigidBody } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
 
@@ -10,7 +10,7 @@ import * as THREE from "three";
 interface PlayerProps {
   position: Vector3;
   playerId: string;
-  rotation: THREE.Quaternion;
+  rotation: [number, number, number, number];
 }
 
 export default function Player({ position, rotation, playerId }: PlayerProps) {

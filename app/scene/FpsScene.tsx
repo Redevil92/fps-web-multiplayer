@@ -22,7 +22,7 @@ export default function FpsScene() {
     const playersData: PlayerData[] = roomContext.roomPlayers.map(
       (playerId: string) => ({
         playerPosition: [0, 0, 0],
-        playerRotation: new Quaternion(),
+        playerRotation: [0, 0, 0, 0],
         playerId,
       })
     );

@@ -71,43 +71,36 @@ export default function FpsScene() {
         shadows
         onPointerDown={(e) => (e.target as any).requestPointerLock()}
       >
-        <Fisheye zoom={0.4}>
-          <Environment files="/night.hdr" ground={{ scale: 100 }} />
-          <directionalLight
-            intensity={0.7}
-            castShadow
-            shadow-bias={-0.0004}
-            position={[-20, 20, 20]}
-          >
-            <orthographicCamera
-              attach="shadow-camera"
-              args={[-20, 20, 20, -20]}
-            />
-          </directionalLight>
-          <ambientLight intensity={0.2} />
-          <Physics timeStep="vary">
-            <CurrentPlayer />
-            {/* <Player position={[0, 0, 0]} playerId="2"></Player> */}
+        <Environment files="/blue_sky.hdr" ground={{ scale: 90 }} />
+        <directionalLight
+          intensity={0.7}
+          castShadow
+          shadow-bias={-0.0004}
+          position={[-20, 20, 20]}
+        >
+          <orthographicCamera
+            attach="shadow-camera"
+            args={[-20, 20, 20, -20]}
+          />
+        </directionalLight>
+        <ambientLight intensity={0.2} />
+        <Physics timeStep="vary">
+          <CurrentPlayer />
+          {/* <Player position={[0, 0, 0]} playerId="2"></Player> */}
 
-            {players.map((player, index) => (
-              <Player
-                playerId={player.playerId}
-                key={index}
-                position={player.playerPosition}
-                rotation={player.playerRotation}
-              />
-            ))}
-            <RigidBody type="fixed" colliders="trimesh">
-              <Gltf
-                castShadow
-                receiveShadow
-                rotation={[-Math.PI / 2, 0, 0]}
-                scale={0.11}
-                src="/fantasy_game_inn2-transformed.glb"
-              />
-            </RigidBody>
-          </Physics>
-        </Fisheye>
+          {players.map((player, index) => (
+            <Player
+              playerId={player.playerId}
+              key={index}
+              position={player.playerPosition}
+              rotation={player.playerRotation}
+            />
+          ))}
+          <RigidBody type="fixed" colliders="trimesh">
+            <Gltf castShadow receiveShadow scale={0.5} src="/scene.gltf" />
+          </RigidBody>
+        </Physics>
+        ddw
       </Canvas>
     </>
   );

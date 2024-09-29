@@ -100,7 +100,6 @@ export default function FpsScene() {
             <Gltf castShadow receiveShadow scale={0.5} src="/scene.gltf" />
           </RigidBody>
         </Physics>
-        ddw
       </Canvas>
     </>
   );

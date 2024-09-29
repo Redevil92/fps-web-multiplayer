@@ -1,8 +1,9 @@
-import { RigidBody, vec3 } from "@react-three/rapier";
+import { RapierRigidBody, RigidBody, vec3 } from "@react-three/rapier";
 import { isHost } from "playroomkit";
 import { useEffect, useRef } from "react";
-import { MeshBasicMaterial } from "three";
+import { MeshBasicMaterial, Vector3 } from "three";
 import { WEAPON_OFFSET } from "./CharacterController";
+import BulletData from "../models/BulletData";
 
 const BULLET_SPEED = 20;
 
@@ -13,8 +14,26 @@ const bulletMaterial = new MeshBasicMaterial({
 
 bulletMaterial.color.multiplyScalar(42);
 
-export const Bullet = ({ player, angle, position, onHit }) => {
-  const rigidbody = useRef();
+interface BulletPropsInterface {
+  playerId: string;
+  angle: any;
+  position: Vector3;
+  onHit: (position: Vector3) => void;
+}
+
+interface RigidBodyUserData {
+  type: "bullet";
+  playerId: string;
+  damage: number;
+}
+
+export const Bullet = ({
+  playerId,
+  angle,
+  position,
+  onHit,
+}: BulletPropsInterface) => {
+  const rigidbody = useRef<RapierRigidBody | null>(null);
 
   useEffect(() => {
     const audio = new Audio("/audios/rifle.mp3");
@@ -25,7 +44,7 @@ export const Bullet = ({ player, angle, position, onHit }) => {
       z: Math.cos(angle) * BULLET_SPEED,
     };
 
-    rigidbody.current.setLinvel(velocity, true);
+    rigidbody.current!.setLinvel(velocity, true);
   }, []);
 
   return (
@@ -39,17 +58,23 @@ export const Bullet = ({ player, angle, position, onHit }) => {
           ref={rigidbody}
           gravityScale={0}
           onIntersectionEnter={(e) => {
-            if (isHost() && e.other.rigidBody.userData?.type !== "bullet") {
-              rigidbody.current.setEnabled(false);
-              onHit(vec3(rigidbody.current.translation()));
+            if (
+              isHost() &&
+              (e.other.rigidBody!.userData as RigidBodyUserData)?.type !==
+                "bullet"
+            ) {
+              rigidbody.current!.setEnabled(false);
+              onHit(vec3(rigidbody.current!.translation()));
             }
           }}
           sensor
-          userData={{
-            type: "bullet",
-            player,
-            damage: 10,
-          }}
+          userData={
+            {
+              type: "bullet",
+              playerId,
+              damage: 10,
+            } as RigidBodyUserData
+          }
         >
           <mesh position-z={0.25} material={bulletMaterial} castShadow>
             <boxGeometry args={[0.05, 0.05, 0.5]} />

@@ -23,6 +23,8 @@ import { Physics } from "@react-three/rapier";
 import { BulletHit } from "./components/BulletHit";
 import { Bullet } from "./components/Bullet";
 import { WorldMap } from "./components/Map";
+import BulletData from "./models/BulletData";
+import HitData from "./models/HitData";
 
 export default function Home() {
   const [players, setPlayers] = useState<
@@ -54,8 +56,8 @@ export default function Home() {
     start();
   }, []);
 
-  const [bullets, setBullets] = useState([]);
-  const [hits, setHits] = useState([]);
+  const [bullets, setBullets] = useState<BulletData[]>([]);
+  const [hits, setHits] = useState<HitData[]>([]);
 
   const [networkBullets, setNetworkBullets] = useMultiplayerState(
     "bullets",
@@ -63,16 +65,16 @@ export default function Home() {
   );
   const [networkHits, setNetworkHits] = useMultiplayerState("hits", []);
 
-  const onFire = (bullet) => {
+  const onFire = (bullet: BulletData) => {
     setBullets((bullets) => [...bullets, bullet]);
   };
 
-  const onHit = (bulletId, position) => {
+  const onHit = (bulletId: string, position: Vector3) => {
     setBullets((bullets) => bullets.filter((bullet) => bullet.id !== bulletId));
-    setHits((hits) => [...hits, { id: bulletId, position }]);
+    setHits((hits) => [...hits, { id: bulletId, position } as HitData]);
   };
 
-  const onHitEnded = (hitId) => {
+  const onHitEnded = (hitId: string) => {
     setHits((hits) => hits.filter((h) => h.id !== hitId));
   };
 
@@ -84,8 +86,8 @@ export default function Home() {
     setNetworkHits(hits);
   }, [hits]);
 
-  const onKilled = (_victim, killer) => {
-    const killerState = players.find((p) => p.state.id === killer).state;
+  const onKilled = (_victim: PlayerState, killerId: string) => {
+    const killerState = players.find((p) => p.state.id === killerId)?.state!;
     killerState.setState("kills", killerState.state.kills + 1);
   };
 
@@ -119,20 +121,24 @@ export default function Home() {
                 downgradedPerformance={downgradedPerformance}
               />
             ))}
-            {(isHost() ? bullets : networkBullets).map((bullet) => (
-              <Bullet
-                key={bullet.id}
-                {...bullet}
-                onHit={(position) => onHit(bullet.id, position)}
-              />
-            ))}
-            {(isHost() ? hits : networkHits).map((hit) => (
-              <BulletHit
-                key={hit.id}
-                {...hit}
-                onEnded={() => onHitEnded(hit.id)}
-              />
-            ))}
+            {(isHost() ? bullets : (networkBullets as BulletData[])).map(
+              (bullet) => (
+                <Bullet
+                  key={bullet.id}
+                  {...bullet}
+                  onHit={(position: Vector3) => onHit(bullet.id, position)}
+                />
+              )
+            )}
+            {(isHost() ? hits : (networkHits as HitData[])).map(
+              (hit: HitData) => (
+                <BulletHit
+                  key={hit.id}
+                  {...hit}
+                  onEnded={() => onHitEnded(hit.id)}
+                />
+              )
+            )}
             <Environment preset="sunset" />
           </Physics>
         </Suspense>

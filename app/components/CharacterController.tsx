@@ -6,6 +6,8 @@ import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { isHost } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
 import { CharacterSoldier } from "./CharacterSoldier";
+
+import BulletData from "../models/BulletData";
 const MOVEMENT_SPEED = 202;
 const FIRE_RATE = 380;
 export const WEAPON_OFFSET = {
@@ -116,11 +118,11 @@ export const CharacterController = ({
       if (isHost()) {
         if (Date.now() - lastShoot.current > FIRE_RATE) {
           lastShoot.current = Date.now();
-          const newBullet = {
+          const newBullet: BulletData = {
             id: state.id + "-" + +new Date(),
             position: vec3(rigidbody.current.translation()),
             angle,
-            player: state.id,
+            playerId: state.id,
           };
           onFire(newBullet);
         }

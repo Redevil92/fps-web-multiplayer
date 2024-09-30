@@ -2,14 +2,22 @@ import { Instance, Instances } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { isHost } from "playroomkit";
 import { useEffect, useMemo, useRef } from "react";
-import { Color, MathUtils, Vector3 } from "three";
+import { Color, MathUtils, Mesh, Vector3 } from "three";
 
 const bulletHitcolor = new Color("red");
 bulletHitcolor.multiplyScalar(12);
 
-const AnimatedBox = ({ scale, target, speed }) => {
-  const ref = useRef();
+interface AnimatedBoxInterface {
+  scale: number;
+  target: Vector3;
+  speed: number;
+}
+
+const AnimatedBox = ({ scale, target, speed }: AnimatedBoxInterface) => {
+  const ref = useRef<Mesh>();
   useFrame((_, delta) => {
+    if (!ref.current) return;
+
     if (ref.current.scale.x > 0) {
       ref.current.scale.x =
         ref.current.scale.y =
@@ -21,7 +29,13 @@ const AnimatedBox = ({ scale, target, speed }) => {
   return <Instance ref={ref} scale={scale} position={[0, 0, 0]} />;
 };
 
-export const BulletHit = ({ nb = 100, position, onEnded }) => {
+interface BulletHit {
+  nb: number;
+  position: Vector3;
+  onEnded: () => void;
+}
+
+export const BulletHit = ({ nb = 100, position, onEnded }: BulletHit) => {
   const boxes = useMemo(
     () =>
       Array.from({ length: nb }, () => ({

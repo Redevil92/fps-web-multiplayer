@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { CharacterSoldier } from "./CharacterSoldier";
 
 import BulletData from "../models/BulletData";
-import { DirectionalLight, Group, Vector3 } from "three";
+import { Color, DirectionalLight, Group, Vector3 } from "three";
 import RigidBodyUserData from "../models/RigidBodyUserData";
 import PlayerStateInfo from "../models/PlayerStateInfo";
 
@@ -43,9 +43,9 @@ export const CharacterController = ({
   downgradedPerformance,
   ...props
 }: CharacterController) => {
-  const group = useRef<Group>();
-  const character = useRef<Group>();
-  const rigidbody = useRef<RapierRigidBody>();
+  const group = useRef<Group | null>(null);
+  const character = useRef<Group | null>(null);
+  const rigidbody = useRef<RapierRigidBody | null>(null);
   const [animation, setAnimation] = useState("Idle");
   const [weapon, setWeapon] = useState<string>("AK");
   const lastShoot = useRef(0);
@@ -158,8 +158,8 @@ export const CharacterController = ({
       }
     }
   });
-  const controls = useRef<CameraControls>();
-  const directionalLight = useRef<DirectionalLight>();
+  const controls = useRef<CameraControls | null>(null);
+  const directionalLight = useRef<DirectionalLight | null>(null);
 
   useEffect(() => {
     if (character.current && userPlayer) {
@@ -201,7 +201,7 @@ export const CharacterController = ({
               }, 2000);
               onKilled(
                 state.id,
-                (other.rigidBody!.userData as RigidBodyUserData).player
+                (other.rigidBody!.userData as RigidBodyUserData).playerId
               );
             } else {
               state.setState("health", newHealth);

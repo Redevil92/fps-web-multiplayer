@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { MeshBasicMaterial, Vector3 } from "three";
 import { WEAPON_OFFSET } from "./CharacterController";
 import BulletData from "../models/BulletData";
+import RigidBodyUserData from "../models/RigidBodyUserData";
 
 const BULLET_SPEED = 20;
 
@@ -19,12 +20,6 @@ interface BulletPropsInterface {
   angle: any;
   position: Vector3;
   onHit: (position: Vector3) => void;
-}
-
-interface RigidBodyUserData {
-  type: "bullet";
-  playerId: string;
-  damage: number;
 }
 
 export const Bullet = ({

@@ -2,12 +2,21 @@
 
 import { Billboard, CameraControls, Text } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
-import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
-import { isHost } from "playroomkit";
+import {
+  CapsuleCollider,
+  RapierRigidBody,
+  RigidBody,
+  vec3,
+} from "@react-three/rapier";
+import { isHost, Joystick, PlayerState } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
 import { CharacterSoldier } from "./CharacterSoldier";
 
 import BulletData from "../models/BulletData";
+import { DirectionalLight, Group, Vector3 } from "three";
+import RigidBodyUserData from "../models/RigidBodyUserData";
+import PlayerStateInfo from "../models/PlayerStateInfo";
+
 const MOVEMENT_SPEED = 202;
 const FIRE_RATE = 380;
 export const WEAPON_OFFSET = {
@@ -15,6 +24,15 @@ export const WEAPON_OFFSET = {
   y: 1.4,
   z: 0.8,
 };
+
+interface CharacterController {
+  state: PlayerState;
+  joystick: Joystick;
+  userPlayer: boolean;
+  onKilled: (_victim: string, killerId: string) => void;
+  onFire: (bullet: BulletData) => void;
+  downgradedPerformance: boolean;
+}
 
 export const CharacterController = ({
   state,
@@ -24,12 +42,12 @@ export const CharacterController = ({
   onFire,
   downgradedPerformance,
   ...props
-}) => {
-  const group = useRef();
-  const character = useRef();
-  const rigidbody = useRef();
+}: CharacterController) => {
+  const group = useRef<Group>();
+  const character = useRef<Group>();
+  const rigidbody = useRef<RapierRigidBody>();
   const [animation, setAnimation] = useState("Idle");
-  const [weapon, setWeapon] = useState("AK");
+  const [weapon, setWeapon] = useState<string>("AK");
   const lastShoot = useRef(0);
 
   const scene = useThree((state) => state.scene);
@@ -44,7 +62,9 @@ export const CharacterController = ({
       }
     }
     const spawnPos = spawns[Math.floor(Math.random() * spawns.length)].position;
-    rigidbody.current.setTranslation(spawnPos);
+    if (rigidbody.current) {
+      rigidbody.current.setTranslation(spawnPos, true);
+    }
   };
 
   useEffect(() => {
@@ -74,7 +94,7 @@ export const CharacterController = ({
     if (controls.current) {
       const cameraDistanceY = window.innerWidth < 1024 ? 16 : 20;
       const cameraDistanceZ = window.innerWidth < 1024 ? 12 : 16;
-      const playerWorldPos = vec3(rigidbody.current.translation());
+      const playerWorldPos = vec3(rigidbody.current!.translation());
       controls.current.setLookAt(
         playerWorldPos.x,
         playerWorldPos.y + (state.state.dead ? 12 : cameraDistanceY),
@@ -95,7 +115,7 @@ export const CharacterController = ({
     const angle = joystick.angle();
     if (joystick.isJoystickPressed() && angle) {
       setAnimation("Run");
-      character.current.rotation.y = angle;
+      character.current!.rotation.y = angle;
 
       // move character in its own direction
       const impulse = {
@@ -104,7 +124,7 @@ export const CharacterController = ({
         z: Math.cos(angle) * MOVEMENT_SPEED * delta,
       };
 
-      rigidbody.current.applyImpulse(impulse, true);
+      rigidbody.current!.applyImpulse(impulse, true);
     } else {
       setAnimation("Idle");
     }
@@ -120,7 +140,7 @@ export const CharacterController = ({
           lastShoot.current = Date.now();
           const newBullet: BulletData = {
             id: state.id + "-" + +new Date(),
-            position: vec3(rigidbody.current.translation()),
+            position: vec3(rigidbody.current!.translation()),
             angle,
             playerId: state.id,
           };
@@ -130,22 +150,24 @@ export const CharacterController = ({
     }
 
     if (isHost()) {
-      state.setState("pos", rigidbody.current.translation());
+      state.setState("pos", rigidbody.current!.translation());
     } else {
       const pos = state.getState("pos");
       if (pos) {
-        rigidbody.current.setTranslation(pos);
+        rigidbody.current!.setTranslation(pos, true);
       }
     }
   });
-  const controls = useRef();
-  const directionalLight = useRef();
+  const controls = useRef<CameraControls>();
+  const directionalLight = useRef<DirectionalLight>();
 
   useEffect(() => {
     if (character.current && userPlayer) {
-      directionalLight.current.target = character.current;
+      directionalLight.current!.target = character.current;
     }
   }, [character.current]);
+
+  // (e.other.rigidBody!.userData as RigidBodyUserData)?.type
 
   return (
     <group {...props} ref={group}>
@@ -159,23 +181,28 @@ export const CharacterController = ({
         onIntersectionEnter={({ other }) => {
           if (
             isHost() &&
-            other.rigidBody.userData.type === "bullet" &&
+            (other.rigidBody!.userData as RigidBodyUserData).type ===
+              "bullet" &&
             state.state.health > 0
           ) {
             const newHealth =
-              state.state.health - other.rigidBody.userData.damage;
+              state.state.health -
+              (other.rigidBody!.userData as RigidBodyUserData).damage;
             if (newHealth <= 0) {
               state.setState("deaths", state.state.deaths + 1);
               state.setState("dead", true);
               state.setState("health", 0);
-              rigidbody.current.setEnabled(false);
+              rigidbody.current!.setEnabled(false);
               setTimeout(() => {
                 spawnRandomly();
-                rigidbody.current.setEnabled(true);
+                rigidbody.current!.setEnabled(true);
                 state.setState("health", 100);
                 state.setState("dead", false);
               }, 2000);
-              onKilled(state.id, other.rigidBody.userData.player);
+              onKilled(
+                state.id,
+                (other.rigidBody!.userData as RigidBodyUserData).player
+              );
             } else {
               state.setState("health", newHealth);
             }
@@ -221,7 +248,7 @@ export const CharacterController = ({
   );
 };
 
-const PlayerInfo = ({ state }) => {
+const PlayerInfo = ({ state }: { state: PlayerStateInfo }) => {
   const health = state.health;
   const name = state.profile.name;
   return (
@@ -242,7 +269,11 @@ const PlayerInfo = ({ state }) => {
   );
 };
 
-const Crosshair = (props) => {
+interface CrosshairInterface {
+  position: Vector3;
+}
+
+const Crosshair = (props: CrosshairInterface) => {
   return (
     <group {...props}>
       <mesh position-z={1}>

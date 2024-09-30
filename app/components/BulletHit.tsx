@@ -30,7 +30,7 @@ const AnimatedBox = ({ scale, target, speed }: AnimatedBoxInterface) => {
 };
 
 interface BulletHit {
-  nb: number;
+  nb?: number;
   position: Vector3;
   onEnded: () => void;
 }

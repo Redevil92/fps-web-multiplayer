@@ -86,7 +86,7 @@ export default function Home() {
     setNetworkHits(hits);
   }, [hits]);
 
-  const onKilled = (_victim: PlayerState, killerId: string) => {
+  const onKilled = (_victimId: string, killerId: string) => {
     const killerState = players.find((p) => p.state.id === killerId)?.state!;
     killerState.setState("kills", killerState.state.kills + 1);
   };

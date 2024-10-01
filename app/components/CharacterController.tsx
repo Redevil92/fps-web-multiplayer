@@ -218,7 +218,9 @@ export const CharacterController = ({
           />
           {userPlayer && (
             <Crosshair
-              position={[WEAPON_OFFSET.x, WEAPON_OFFSET.y, WEAPON_OFFSET.z]}
+              position={
+                new Vector3(WEAPON_OFFSET.x, WEAPON_OFFSET.y, WEAPON_OFFSET.z)
+              }
             />
           )}
         </group>
@@ -255,7 +257,7 @@ const PlayerInfo = ({ state }: { state: PlayerStateInfo }) => {
     <Billboard position-y={2.5}>
       <Text position-y={0.36} fontSize={0.4}>
         {name}
-        <meshBasicMaterial color={state.profile.color} />
+        <meshBasicMaterial color={state.profile.color as any} />
       </Text>
       <mesh position-z={-0.1}>
         <planeGeometry args={[1, 0.2]} />

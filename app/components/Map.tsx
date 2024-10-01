@@ -1,12 +1,13 @@
 import { useGLTF } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 import { useEffect } from "react";
+import { Mesh } from "three";
 
 export const WorldMap = () => {
   const map = useGLTF("models/map.glb");
   useEffect(() => {
     map.scene.traverse((child) => {
-      if (child.isMesh) {
+      if ((child as Mesh).isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }

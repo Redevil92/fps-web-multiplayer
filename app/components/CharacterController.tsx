@@ -94,16 +94,20 @@ export const CharacterController = ({
     if (controls.current) {
       const cameraDistanceY = window.innerWidth < 1024 ? 16 : 20;
       const cameraDistanceZ = window.innerWidth < 1024 ? 12 : 16;
-      const playerWorldPos = vec3(rigidbody.current!.translation());
-      controls.current.setLookAt(
-        playerWorldPos.x,
-        playerWorldPos.y + (state.state.dead ? 12 : cameraDistanceY),
-        playerWorldPos.z + (state.state.dead ? 2 : cameraDistanceZ),
-        playerWorldPos.x,
-        playerWorldPos.y + 1.5,
-        playerWorldPos.z,
-        true
-      );
+      // const cameraDistanceY = 8;
+      // const cameraDistanceZ = 4;
+      const playerWorldPos = rigidbody.current?.translation();
+      if (playerWorldPos) {
+        controls.current.setLookAt(
+          playerWorldPos.x,
+          playerWorldPos.y + (state.state.dead ? 12 : cameraDistanceY),
+          playerWorldPos.z + (state.state.dead ? 2 : cameraDistanceZ),
+          playerWorldPos.x,
+          playerWorldPos.y + 1.5,
+          playerWorldPos.z,
+          true
+        );
+      }
     }
 
     if (state.state.dead) {

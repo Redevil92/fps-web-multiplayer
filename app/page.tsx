@@ -32,7 +32,7 @@ export default function Home() {
   >([]);
   const [downgradedPerformance, setDowngradedPerformance] = useState(false);
   const start = async () => {
-    await insertCoin();
+    await insertCoin({ maxPlayersPerRoom: 8 });
 
     onPlayerJoin((state) => {
       // Joystick will only create UI for current player (myPlayer)

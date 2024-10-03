@@ -7,7 +7,7 @@ Command: npx gltfjsx@6.2.3 public/models/Character_Soldier.gltf -o src/component
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useGraph } from "@react-three/fiber";
 import React, { useEffect, useMemo, useRef } from "react";
-import { Color, LoopOnce, MeshStandardMaterial } from "three";
+import { Color, Group, LoopOnce, Mesh, MeshStandardMaterial } from "three";
 import { SkeletonUtils } from "three-stdlib";
 const WEAPONS = [
   "GrenadeLauncher",
@@ -32,7 +32,7 @@ export function CharacterSoldier({
   weapon = "AK",
   ...props
 }) {
-  const group = useRef();
+  const group = useRef<Group | null>(null);
   const { scene, materials, animations } = useGLTF(
     "/models/Character_Soldier.gltf"
   );
@@ -47,8 +47,8 @@ export function CharacterSoldier({
   }
 
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.2).play();
-    return () => actions[animation]?.fadeOut(0.2);
+    actions[animation]?.reset().fadeIn(0.2).play();
+    return () => actions[animation]?.fadeOut(0.2) as any;
   }, [animation]);
 
   const playerColorMaterial = useMemo(
@@ -66,8 +66,8 @@ export function CharacterSoldier({
     });
 
     // ASSIGNING CHARACTER COLOR
-    nodes.Body.traverse((child) => {
-      if (child.isMesh && child.material.name === "Character_Main") {
+    nodes.Body.traverse((child: any) => {
+      if ((child as Mesh).isMesh && child.material.name === "Character_Main") {
         child.material = playerColorMaterial;
       }
       if (child.isMesh) {
@@ -75,12 +75,12 @@ export function CharacterSoldier({
         child.receiveShadow = true;
       }
     });
-    nodes.Head.traverse((child) => {
+    nodes.Head.traverse((child: any) => {
       if (child.isMesh && child.material.name === "Character_Main") {
         child.material = playerColorMaterial;
       }
     });
-    clone.traverse((child) => {
+    clone.traverse((child: any) => {
       if (child.isMesh && child.material.name === "Character_Main") {
         child.material = playerColorMaterial;
       }
@@ -98,37 +98,37 @@ export function CharacterSoldier({
           <group name="Body_1">
             <skinnedMesh
               name="Cube004"
-              geometry={nodes.Cube004.geometry}
+              geometry={(nodes.Cube004 as Mesh).geometry}
               material={materials.Skin}
-              skeleton={nodes.Cube004.skeleton}
+              skeleton={(nodes.Cube004 as any).skeleton}
               castShadow
             />
             <skinnedMesh
               name="Cube004_1"
-              geometry={nodes.Cube004_1.geometry}
+              geometry={(nodes.Cube004_1 as Mesh).geometry}
               material={materials.DarkGrey}
-              skeleton={nodes.Cube004_1.skeleton}
+              skeleton={(nodes.Cube004_1 as any).skeleton}
               castShadow
             />
             <skinnedMesh
               name="Cube004_2"
-              geometry={nodes.Cube004_2.geometry}
+              geometry={(nodes.Cube004_2 as Mesh).geometry}
               material={materials.Pants}
-              skeleton={nodes.Cube004_2.skeleton}
+              skeleton={(nodes.Cube004_2 as any).skeleton}
               castShadow
             />
             <skinnedMesh
               name="Cube004_3"
-              geometry={nodes.Cube004_3.geometry}
+              geometry={(nodes.Cube004_3 as Mesh).geometry}
               material={playerColorMaterial}
-              skeleton={nodes.Cube004_3.skeleton}
+              skeleton={(nodes.Cube004_3 as any).skeleton}
               castShadow
             />
             <skinnedMesh
               name="Cube004_4"
-              geometry={nodes.Cube004_4.geometry}
+              geometry={(nodes.Cube004_4 as Mesh).geometry}
               material={materials.Black}
-              skeleton={nodes.Cube004_4.skeleton}
+              skeleton={(nodes.Cube004_4 as any).skeleton}
               castShadow
             />
           </group>

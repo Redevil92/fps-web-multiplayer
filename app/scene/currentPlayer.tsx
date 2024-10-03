@@ -50,10 +50,6 @@ export default function Player() {
     refresh();
   }, []);
 
-  function keyboardControlsHandler(name: string, pressed: boolean) {
-    //emitPlayerMove();
-  }
-
   function emitPlayerMove() {
     const playerPosition = ref.current?.getWorldPosition(new Vector3());
     const playerRotation = ref?.current?.getWorldQuaternion(new Quaternion());
@@ -74,7 +70,7 @@ export default function Player() {
   }
 
   return (
-    <KeyboardControls onChange={keyboardControlsHandler} map={keyboardMap}>
+    <KeyboardControls map={keyboardMap}>
       <Controller maxVelLimit={5}>
         <Gltf
           ref={ref}
